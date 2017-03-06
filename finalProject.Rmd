@@ -9,14 +9,31 @@ output: html_document
 
 
 ```{r first, warning=FALSE, message=FALSE}
-require("knitr")
-require("dplyr")
-require("ggplot2")
+require(knitr)
+require(dplyr)
+require(ggplot2)
+require(maps)
+require(ggmap)
+data("state.map")
 
-# Read in the datase
-df = read.csv("data/acaData.csv")
+# Read in the data
+df <- read.csv(file="data/acaData.csv", header = FALSE, skip = 1, sep = ",", strip.white = TRUE )
 
+# strip percentage sign from values of uninsured rate change column
+df$V4 <- (sapply(df$V4, function(x) as.numeric(gsub("%","", x))))
 
+# add region column and convert state names to lowercase
+df$region  = tolower(df$V1)
+
+# get state map data and merge with insurance data
+states = map_data('state')
+mapData = merge(df, states, by = 'region') 
+
+# United States map showing Uninsured rate change by State, 2010-15
+ggplot(mapData, aes(x = long, y = lat, group = group)) +
+  geom_polygon(aes(fill = cut_number(V4, 8))) +
+  geom_path(colour = 'white') + labs(title = "State level change in Insurance Coverage, 2010-15") +
+  scale_fill_brewer('Uninsured Rate Change, 2010-15') + coord_map()
 
 ```
 
