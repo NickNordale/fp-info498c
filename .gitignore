@@ -5,6 +5,7 @@
 # Session Data files
 .RData
 .DS_Store
+.gitattributes
 
 # Example code in package build process
 *-Ex.R
