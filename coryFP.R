@@ -43,18 +43,22 @@ server <- function(input, output) {
     
     if(input$columns == "Uninsured Rate 2010") {
       column = mapData$V2
+      legendTitle = "Uninsured Rate"
+      gtitle="Insurance Coverage across States 2010"
     } else if (input$columns == "Uninsured Rate 2015") {
       column = mapData$V3
+      legendTitle = "Uninsured Rate"
+      gtitle="Insurance Coverage across States 2015"
     } else {
       column = mapData$V4
-      
+      legendTitle = "Uninsured Rate (decrease)"
+      gtitle="Insurance Coverage Change across States 2010-2015"
     }
     
-
-     ggplot(mapData, aes(x = long, y = lat, group = group)) +
+    ggplot(mapData, aes(x = long, y = lat, group = group)) +
       geom_polygon(aes(fill = cut_number(column, 8))) +
-      geom_path(colour = 'white') + labs(title = "State level change in Insurance Coverage, 2010-15") +
-      scale_fill_brewer('Uninsured Rate Change, 2010-15') + coord_map()
+      geom_path(colour = 'white') + labs(title = gtitle) +
+      scale_fill_brewer(legendTitle) + coord_map()
   })
 }
 
