@@ -1,36 +1,33 @@
-library(shiny)
-library(HSAUR)
-library(dplyr)
-library(ggplot2)
+require(shiny)
+require(dplyr)
+require(ggplot2)
+require(maps)
+require(ggmap)
 
-data <- (womensrole)
+data("state.map")
 
-data.men <- data %>%
-  filter(sex =="Male")
+# Read in the data
+df <- read.csv(file="data/smallaca.csv", header = FALSE, skip = 1, sep = ",", strip.white = TRUE)
 
-data.women <- data %>%
-  filter(sex == "Female")
+# add region column and convert state names to lowercase
+df$region  = tolower(df$V1)
+
+# get state map data and merge with insurance data
+states = map_data('state')
+mapData = merge(df, states, by = 'region') 
+
 
 ui <- fluidPage(
   
   # Application title
-  titlePanel("Women's Role in Society"),
+  titlePanel("ACA Impact across United States"),
   
   sidebarLayout(
     sidebarPanel(
-      selectInput(inputId = "gender",
-                  label = "Gender:",
-                  choices = c("Men", "Women", "Both"),
-                  selected = "Both"),
-      
-      selectInput(inputId = "thoughts",
-                  label = "Who:",
-                  choices = c("Agree", "Disagree"),
-                  selected= "Agree"),
-      
-      sliderInput("integer", inputId = "education",
-                  label = "Education level",
-                  min = 0, max = 20, value = 20, step = 1)
+      selectInput(inputId = "columns",
+                  label = "Explore:",
+                  choices = c("Uninsured Rate 2010", "Uninsured Rate 2015", "Uninsured Rate Change (2010-2015)"),
+                  selected= "Uninsured Rate 2010")
     ),
     
     # Show a plot of the generated distribution
@@ -44,27 +41,21 @@ server <- function(input, output) {
   
   output$rolePlot <- renderPlot({
     
-    if(input$gender == "Men") {
-      plot.data <- data.men
-    } else if (input$gender == "Women") {
-      plot.data <- data.women
+    if(input$columns == "Uninsured Rate 2010") {
+      column = mapData$V2
+    } else if (input$columns == "Uninsured Rate 2015") {
+      column = mapData$V3
     } else {
-      plot.data <- data
+      column = mapData$V4
+      
     }
     
-    plot.data <- plot.data %>%
-      filter(education <= input$education)
-    
-    if(input$thoughts == "Agree") {
-      y = plot.data$agree
-    } else {
-      y = plot.data$disagree
-    }
-    
-    ggplot(plot.data, aes(x=education, y=y, color=factor(sex))) + geom_point()
-    
+
+     ggplot(mapData, aes(x = long, y = lat, group = group)) +
+      geom_polygon(aes(fill = cut_number(column, 8))) +
+      geom_path(colour = 'white') + labs(title = "State level change in Insurance Coverage, 2010-15") +
+      scale_fill_brewer('Uninsured Rate Change, 2010-15') + coord_map()
   })
 }
 
-# Run the application 
 shinyApp(ui = ui, server = server)
