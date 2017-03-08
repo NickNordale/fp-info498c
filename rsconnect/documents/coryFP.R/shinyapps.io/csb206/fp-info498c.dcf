@@ -3,9 +3,9 @@ title: fp-info498c
 account: csb206
 server: shinyapps.io
 appId: 162088
-bundleId: 738347
+bundleId: 738720
 url: https://csb206.shinyapps.io/fp-info498c/
-when: 1488973859.28988
+when: 1488991501.24858
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: .Rapp.history|.RData|README.md|data/.DS_Store|data/access.csv|data/aca/Individual_Market_Medical_14.xlsx|data/aca/Individual_Market_Medical_15.xlsx|data/aca/Individual_Market_Medical_16.xlsx|data/aca/Individual_Market_Medical_17.xlsx
+ignoredFiles: .Rapp.history|.RData|final.html|index.html|nn_analysis.R|README.md|scottaca.csv|us.json|us2016election.csv|data/.DS_Store|data/access.csv|data/aca/Individual_Market_Medical_14.xlsx|data/aca/Individual_Market_Medical_15.xlsx|data/aca/Individual_Market_Medical_16.xlsx|data/aca/Individual_Market_Medical_17.xlsx
