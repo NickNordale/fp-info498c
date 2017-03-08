@@ -40,6 +40,10 @@ state.level.map <- full_join(state.level, us, by = 'region')
 
 ui <- fluidPage(
   
+  titlePanel("ACA Pricing Analysis"),
+  p("The following visualizations display data on the average premium costs of individual health care plans for various states and ages."),
+  br(),
+  
   mainPanel(
     fluidRow(
       selectInput(inputId = "type",
@@ -49,10 +53,13 @@ ui <- fluidPage(
       
       plotOutput(outputId = "main_plot", width = '800px', height = '400px')
     ),
+    br(),
+    br(),
     
     fluidRow(
       column(
         6,
+        h4("Highest Avg Savings"),
         selectInput(inputId = "table.age",
                     label = "Age",
                     choices = c('All', 'Child', '21', '27', '30', '40', '50', '60'),
@@ -62,6 +69,7 @@ ui <- fluidPage(
       ),
       column(
         6,
+        h4("Lowest Avg Savings"),
         selectInput(inputId = "table.age2",
                     label = "Age",
                     choices = c('All', 'Child', '21', '27', '30', '40', '50', '60'),
@@ -154,7 +162,8 @@ server <- function(input, output) {
     
     ggplot(state.level.map, aes(map_id = region)) + 
       geom_map(aes_string(fill = metric), map = us) + 
-      expand_limits(x = state.level.map$long, y = state.level.map$lat)
+      expand_limits(x = state.level.map$long, y = state.level.map$lat) + 
+      guides(fill = guide_legend(title = "Average Individual Premium"))
   })
 }
 
