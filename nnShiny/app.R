@@ -23,8 +23,12 @@ tot <- inner_join(aca, private,
                          'Metal.Level' = 'MetalLevel', 
                          'age' = 'aca_age', 
                          'year' = 'BusinessYear', 
-                         'region' = 'region'), 
+                         'region' = 'region'),
                   suffix = c(".aca", ".p"))
+
+# if anyone cares, this normalizes for plan type. Every state will have one observation 
+#   for each age with each remaining metal level (Gold, Silver, Bronze)
+tot <- tot %>% filter(Metal.Level != 'Catastrophic' & Metal.Level != 'Platinum')
 
 tot.map <- full_join(tot, us, by = 'region')
 
@@ -169,7 +173,7 @@ server <- function(input, output) {
         select(one_of(c('State', 'Avg ACA Savings'))),
       spacing = 'm', 
       striped = TRUE,  
-      width = '100%', 
+      width = '100%',
       align = 'c'
     )
     
