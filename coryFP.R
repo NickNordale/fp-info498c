@@ -7,7 +7,7 @@ require(ggmap)
 data("state.map")
 
 # Read in the data
-df <- read.csv(file="data/smallaca.csv", header = FALSE, skip = 1, sep = ",", strip.white = TRUE)
+df <- read.csv(file="data/datACA.csv", header = FALSE, skip = 1, sep = ",", strip.white = TRUE)
 
 # add region column and convert state names to lowercase
 df$region  = tolower(df$V1)
@@ -49,7 +49,7 @@ ui <- fluidPage(
     sidebarPanel(
       selectInput(inputId = "columns",
                   label = "Explore:",
-                  choices = c("Uninsured Rate 2010", "Uninsured Rate 2015", "Uninsured Rate Change (2010-2015)", ""),
+                  choices = c("Uninsured Rate 2010", "Uninsured Rate 2015", "Uninsured Rate Change (2010-2015)", "Family Premium Rate Change (2010 - 2015)"),
                   selected= "Uninsured Rate 2010")
     ),
     # Show a plot of the generated distribution
@@ -71,10 +71,14 @@ server <- function(input, output) {
       column = mapData$V3
       legendTitle = "Uninsured Rate"
       gtitle="Insurance Coverage across United States in 2015"
-    } else {
+    } else if (input$columns == "Uninsured Rate Change (2010-2015)") {
       column = mapData$V4
       legendTitle = "Uninsured Rate (decrease)"
       gtitle="Insurance Coverage Change across United States from 2010-2015"
+    } else {
+      column = mapData$V17
+      legendTitle = "Family Premium Rate (increase)"
+      gtitle = "Family Premium Insurance Price Change across United States from 2010-2015"
     }
     
     ggplot(mapData, aes(x = long, y = lat, group = group)) +
@@ -85,3 +89,4 @@ server <- function(input, output) {
 }
 
 shinyApp(ui = ui, server = server)
+
