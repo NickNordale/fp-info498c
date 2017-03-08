@@ -27,7 +27,7 @@ private.rates$aca_age <- ifelse(private.rates$Age >= 21 & private.rates$Age < 27
                                               ifelse(private.rates$Age >= 40 & private.rates$Age < 50, 40, 
                                                      ifelse(private.rates$Age >= 50 & private.rates$Age < 60, 50, 
                                                             ifelse(private.rates$Age >= 60, 60, 
-                                                                   ifelse(private.rates$Age == '65 and over', 60, 'Child')))))))
+                                                                   ifelse(private.rates$Age == '65 and over', 60, 10)))))))
 
 private.rates <- private.rates %>% select(-one_of(c('Age')))
 
@@ -106,7 +106,7 @@ df14 <- df14 %>% group_by(State, Metal.Level) %>% summarise_each(funs(mean))
 df15 <- df15 %>% group_by(State, Metal.Level) %>% summarise_each(funs(mean))
 df16 <- df16 %>% group_by(State, Metal.Level) %>% summarise_each(funs(mean))
 
-df14 <- df14 %>% rename(Child = Premium.Child) %>% 
+df14 <- df14 %>% rename('10' = Premium.Child) %>% 
   rename('21' = Premium.Adult.Individual.Age.21) %>% 
   rename('27' = Premium.Adult.Individual.Age.27) %>% 
   rename('30' = Premium.Adult.Individual.Age.30) %>% 
@@ -114,7 +114,7 @@ df14 <- df14 %>% rename(Child = Premium.Child) %>%
   rename('50' = Premium.Adult.Individual.Age.50) %>%
   rename('60' = Premium.Adult.Individual.Age.60)
 
-df15 <- df15 %>% rename(Child = Premium.Child) %>% 
+df15 <- df15 %>% rename('10' = Premium.Child) %>% 
   rename('21' = Premium.Adult.Individual.Age.21) %>% 
   rename('27' = Premium.Adult.Individual.Age.27) %>% 
   rename('30' = Premium.Adult.Individual.Age.30) %>% 
@@ -122,7 +122,7 @@ df15 <- df15 %>% rename(Child = Premium.Child) %>%
   rename('50' = Premium.Adult.Individual.Age.50) %>%
   rename('60' = Premium.Adult.Individual.Age.60)
 
-df16 <- df16 %>% rename(Child = Premium.Child) %>% 
+df16 <- df16 %>% rename('10' = Premium.Child) %>% 
   rename('21' = Premium.Adult.Individual.Age.21) %>% 
   rename('27' = Premium.Adult.Individual.Age.27) %>% 
   rename('30' = Premium.Adult.Individual.Age.30) %>% 
@@ -133,6 +133,16 @@ df16 <- df16 %>% rename(Child = Premium.Child) %>%
 df14 <- melt(data = df14, id.vars = c('State', 'Metal.Level'))
 df15 <- melt(data = df15, id.vars = c('State', 'Metal.Level'))
 df16 <- melt(data = df16, id.vars = c('State', 'Metal.Level'))
+
+df14$year <- '2014'
+df15$year <- '2015'
+df16$year <- '2016'
+
+df14 <- transform(df14, variable = as.numeric(variable))
+df15 <- transform(df15, variable = as.numeric(variable))
+df16 <- transform(df16, variable = as.numeric(variable))
+
+aca <- bind_rows(df14, df15, df16)
 
 ##########################################################################################
 
