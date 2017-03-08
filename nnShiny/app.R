@@ -41,7 +41,7 @@ state.level.map <- full_join(state.level, us, by = 'region')
 ui <- fluidPage(
   
   titlePanel("ACA Pricing Analysis"),
-  p("The following visualizations display data on the average premium costs of individual health care plans for various states and ages."),
+  p("The following visualizations display data from 2014-2016 on the average premium costs of individual health care plans for various states and ages."),
   br(),
   
   mainPanel(
