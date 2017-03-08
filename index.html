@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Non-Contiguous Cartogram</title>
+<style>
+
+.land {
+  fill: #fff;
+  stroke: #ccc;
+}
+
+.state {
+  fill: #ccc;
+  stroke: #666;
+}
+
+.tooltip {
+  position: absolute;
+  text-align: center;
+  width: 80px;
+  height: 72px;
+  padding: 8px;
+  margin-top: -20px;
+  font: 10px sans-serif;
+  background: #ddd;
+  pointer-events: none;
+}
+
+</style>
+<body>
+<h1>Non-Contiguous Cartogram of U.S. Uninsured Rate in 2010 vs. 2016 election results</h1>
+
+<h2>Introduction</h2>
+<p>Using data from ASPE and the Department of Health &amp; Human Services (https://aspe.hhs.gov/compilation-state-data-affordable-care-act), we were able to get uninsured rate for each state in 2010. Then, coupled with data from The American Presidency Project (http://www.presidency.ucsb.edu/showelection.php?year=2016), we were able to get the voting results in the 2016 election. This allowed us to make a very interesting visualization that highlights the mindboggling behavior of the U.S. voting population</p>
+
+<h2>Findings</h2>
+<p>Idaho clearly led the way in terms of premium rate growth hike, and voting republican. This finding especially suprises me since people would definitely realize the growing premium rates and probably demand their politicians do more do work towards guaranteeing them healthcare, yet they voted bigly for Trump. Same thing with Alaska, huge premium rate increase over the last 5 years and still they turn out red.</p>
+
+<p>There are a lot of blue states that look very small as well. This could be due to the fact that blue states have done more to combat healthcare than their Republican counterparts. It also could be other factors as well, but there appears to be a mild correlation between insurance rate growth over the last 5 years and political affiliation.</p>
+
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script src="//d3js.org/topojson.v1.min.js"></script>
+<script>
+
+d3.csv("/kinders/i498/scottaca.csv", function(d) {
+  d3.tsv("/kinders/i498/us-state-names.tsv", function(tsv){
+    d3.csv("/kinders/i498/us2016election.csv", function(election) {
+      var data = {};
+      var dataValueArr = [];
+      var percentDemocratic = {};
+
+      //set id:{name:value} object
+      for (var i = 0; i < tsv.length; i++) {
+        var tsvStateName = tsv[i].name.trim();
+        data[tsv[i].id] = {};
+        for (var j = 0; j < d.length; j++) {
+          var dStateName = d[j].state.trim();
+          if (dStateName == tsvStateName) {
+            data[tsv[i].id][tsvStateName] = +d[j]["fampremiumpctgrowth1015"];
+          }
+        }
+      }
+
+      for (var i = 0; i < d.length; i++) {
+        dataValueArr.push(+d[i].fampremiumpctgrowth1015);
+      }
+
+      console.log(election);
+      for (var i = 0; i < election.length; i++) {
+        percentDemocratic[election[i].state.trim()] = parseInt(election[i].demvotes.replace(/,/g, '')) / (parseInt(election[i].demvotes.replace(/,/g, '')) + parseInt(election[i].repvotes.replace(/,/g, '')))
+      }
+      console.log(percentDemocratic);
+      /*
+      console.log(tsv);
+      console.log("Names:");
+      console.log(names);
+
+
+      console.log(valueById);
+      */
+      var minValue = d3.min(d3.entries(data), function(e) {
+        return d3.min(d3.entries(e.value), function(f) {
+          return +f.value;
+        });
+      });
+
+      var maxValue = d3.max(d3.entries(data), function(e) {
+        return d3.max(d3.entries(e.value), function(f) {
+          return +f.value;
+        });
+      });
+      
+      // console.log("Min and max:");
+      // console.log(minValue);
+      // console.log(maxValue);
+
+      var sizeScale = d3.scale.linear()
+                              .domain([minValue, maxValue])
+                              .range([0, 1]);
+
+      var minPctDem = d3.min(d3.entries(percentDemocratic), function(e) {
+        return +e.value;
+      });
+
+      var maxPctDem = d3.max(d3.entries(percentDemocratic), function(e) {
+        if (e.key !== 'District of Columbia') {
+          return +e.value;
+        } else {
+          return 0.5;
+        }
+      });
+
+      var colorScale = d3.scale.linear()
+                              .domain([maxPctDem, minPctDem])
+                              .range(["blue", "red"]);
+
+      //console.log(dataValueArr);
+      
+      // var sizeScale = d3.scale.quantize()
+      //                         .domain(dataValueArr)
+      //                         .range([0, 1]);
+
+      var path = d3.geo.path();
+
+      var div = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("display", "none");
+
+      var svg = d3.select("body").append("svg")
+          .attr("width", 960)
+          .attr("height", 500);
+
+      d3.json("/kinders/i498/us.json", function(error, us) {
+        if (error) throw error;
+
+        svg.append("path")
+            .datum(topojson.feature(us, us.objects.land))
+            .attr("class", "land")
+            .attr("d", path);
+
+        //state borders
+        svg.selectAll(".state-borders")
+          .data(topojson.feature(us, us.objects.states).features)
+        .enter().append("path")
+        .attr("class", "state-borders")
+        .attr("d", path)
+        .style("opacity", "1")
+        .style("fill", "grey");
+
+        var states = svg.selectAll(".state").data(topojson.feature(us, us.objects.states).features);
+
+        states.enter().append("path");
+
+        states.attr("class", "state")
+            .attr("d", path)
+            .on("mouseover", function(e) {
+              div.style("display", "inline");
+            })
+            .on("mousemove", function(e) {
+              var stateValue = d3.entries(data[e.id])[0].value;
+              var stateName = d3.entries(data[e.id])[0].key;
+              div.html("<p>State: " + stateName + "</p><p>Ins. Rate Growth: " + stateValue + "%</p>")
+                .style("left", (d3.event.pageX + 17) + "px")
+                .style("top", (d3.event.pageY + 10) + "px");
+            })
+            .on("mouseout", function(e) {
+              div.style("display", "none");
+            });;
+
+        states.exit().remove();
+
+        states.transition()
+          .attr("transform", function(e) {
+              if (e.id < 70) {
+                // console.log(e);
+                // console.log(data[e.id]);
+                var stateValue = d3.entries(data[e.id])[0].value;
+                  
+                //console.log(stateValue);
+                //console.log("Scale value:");
+                //console.log(sizeScale(237000));
+                //console.log(sizeScale(valueById[e.id]));
+                var centroid = path.centroid(e),
+                    x = centroid[0],
+                    y = centroid[1];
+                return "translate(" + x + "," + y + ")"
+                    + "scale(" + (sizeScale(stateValue) || 0) + ")"
+                    + "translate(" + -x + "," + -y + ")";
+              }
+            })
+            .style("stroke-width", function(e) {
+              if (e.id < 70) {
+                var stateValue = d3.entries(data[e.id])[0].value;
+
+                return 1 / (sizeScale(stateValue) || 1);
+              }
+            })
+            .style("fill", function(e) {
+              if (e.id < 70) {
+                return colorScale(percentDemocratic[d3.entries(data[e.id])[0].key]);
+              }
+            })
+        /*
+
+        svg.selectAll(".state")
+            .data(topojson.feature(us, us.objects.states).features)
+          .enter().append("path")
+            .attr("class", "state")
+            .attr("d", path)
+            .attr("transform", function(e) {
+              if (e.id < 70) {
+                // console.log(e);
+                // console.log(data[e.id]);
+                var stateValue = d3.entries(data[e.id])[0].value;
+                  
+                //console.log(stateValue);
+                //console.log("Scale value:");
+                //console.log(sizeScale(237000));
+                //console.log(sizeScale(valueById[e.id]));
+                var centroid = path.centroid(e),
+                    x = centroid[0],
+                    y = centroid[1];
+                return "translate(" + x + "," + y + ")"
+                    + "scale(" + (sizeScale(stateValue) || 0) + ")"
+                    + "translate(" + -x + "," + -y + ")";
+              }
+            })
+            .style("stroke-width", function(e) {
+              if (e.id < 70) {
+                var stateValue = d3.entries(data[e.id])[0].value;
+
+                return 1 / (sizeScale(stateValue) || 1);
+              }
+            })
+            .style("fill", function(e) {
+              if (e.id < 70) {
+                return colorScale(percentDemocratic[d3.entries(data[e.id])[0].key]);
+              }
+            })
+            .on("mouseover", function(e) {
+              div.style("display", "inline");
+            })
+            .on("mousemove", function(e) {
+              var stateValue = d3.entries(data[e.id])[0].value;
+              var stateName = d3.entries(data[e.id])[0].key;
+              div.html("<p>State: " + stateName + "</p><p>Value: " + stateValue + "</p>")
+                .style("left", (d3.event.pageX + 17) + "px")
+                .style("top", (d3.event.pageY + 10) + "px");
+            })
+            .on("mouseout", function(e) {
+              div.style("display", "none");
+            });
+            */
+      });
+    });
+  });
+});
+
+</script>
