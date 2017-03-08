@@ -29,9 +29,9 @@ ui <- fluidPage(
     I sliced and diced  the columns I envisioned myself using and renamed them for more simplicity. With this dataset, there are valuable 
     answers to questions that many people are unaware of. There is alot of untapped knowledge to be gained and this 
     interactive tool helps explore those potentials. Since Obama signed the ACA into law on March 23, 2010, health 
-    care access has certainly changed. Soon, you will notice the positive results the ACA has created for millions of 
+    care access has certainly changed. Soon, you will learn more about the results the ACA has created for millions of 
     American lives using this tool. Questions I focused on answering using this dataset include:"),
-  p("* How has the Affordable Care Act change the rate percentages of US citizens with health insurance?"),
+  p("* How has the Affordable Care Act change the rate percentages of US citizens by State with health insurance?"),
   p("* Which states experienced the smallest/largest decline in their uninsured rate?"),
   p("* Which states have the smallest/largest uninsured rate?"),
   p("* Which states have the smallest/largest annual growth rates in family premiums?"),
@@ -82,7 +82,7 @@ ui <- fluidPage(
                   choices = c("Uninsured Rate 2010", "Uninsured Rate 2015", "Uninsured Rate Change (2010-2015)",
                               "Family Premium Rate Change (2010 - 2015)"),
                   selected= "Uninsured Rate 2010"),
-      em("Above, you can select between four different questions to gain more knowledge about the effects of the ACA on 
+      em("Above, you can select between four different explorative subtopics - to gain more knowledge about the effects of the ACA on 
       health insurance coverage.")
     ),
     # Show a plot of the generated distribution
@@ -98,19 +98,19 @@ server <- function(input, output) {
     
     if(input$columns == "Uninsured Rate 2010") {
       column = mapData$V2
-      legendTitle = "Uninsured Rate"
+      legendTitle = "Uninsured Rate %"
       gtitle="Insurance Coverage across United States in 2010"
     } else if (input$columns == "Uninsured Rate 2015") {
       column = mapData$V3
-      legendTitle = "Uninsured Rate"
+      legendTitle = "Uninsured Rate %"
       gtitle="Insurance Coverage across United States in 2015"
     } else if (input$columns == "Uninsured Rate Change (2010-2015)") {
       column = mapData$V4
-      legendTitle = "Uninsured Rate (decrease)"
+      legendTitle = "Uninsured Rate (% decrease)"
       gtitle="Insurance Coverage Change across United States from 2010-2015"
     } else {
       column = mapData$V17
-      legendTitle = "Family Premium Rate (increase)"
+      legendTitle = "Family Premium Rate (% increase)"
       gtitle = "Family Premium Insurance Price Change across United States from 2010-2015"
     } 
     
