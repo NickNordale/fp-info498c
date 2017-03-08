@@ -51,7 +51,20 @@ ui <- fluidPage(
                   choices = c('ACA', 'Private'),
                   selected = 'ACA'),
       
-      plotOutput(outputId = "main_plot", width = '800px', height = '400px')
+      plotOutput(outputId = "main_plot", width = '800px', height = '400px'),
+      br(),
+      p("We found some very interesting results from looking at the average premium costs of individual healthcare plans for various 
+        states and ages. Virginia was a stark outlier compared to the other states. It has by 
+        far the highest average premiums for ACA plans of any state. It was the only state whose 
+        average premiums for ACA plans was actually higher that the private market plans. That said, 
+        because it was such an anomaly, we have concerns about the data quality and collections methods 
+        for Virginia. Further validation will need to be done in analyzing this insight."),
+      p("Another interesting observation we made during this analysis was the inconsistency of states 
+        average costs in relation to the other states for each type of insurance. In other words, 
+        the states with the cheapest private health insurance, did not necessarily have the cheapest 
+        average ACA insurance. For example, Virginia’s average private cost is relatively normal compared 
+        to its extremely high ACA cost. Similarly, Utah has the highest average private costs, but they 
+        have a fairly normal average ACA cost. This may be worth digging into more thoroughly in the future.")
     ),
     br(),
     br(),
