@@ -138,9 +138,9 @@ df14$year <- '2014'
 df15$year <- '2015'
 df16$year <- '2016'
 
-df14 <- transform(df14, variable = as.numeric(variable))
-df15 <- transform(df15, variable = as.numeric(variable))
-df16 <- transform(df16, variable = as.numeric(variable))
+df14 <- transform(df14, age = as.numeric(as.character(variable)))
+df15 <- transform(df15, age = as.numeric(as.character(variable)))
+df16 <- transform(df16, age = as.numeric(as.character(variable)))
 
 aca <- bind_rows(df14, df15, df16)
 
